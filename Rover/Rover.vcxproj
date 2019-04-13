@@ -143,6 +143,19 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="Box.cpp" />
+    <ClCompile Include="Lamp.cpp" />
+    <ClCompile Include="Roller.cpp" />
+    <ClCompile Include="Rover.cpp" />
+    <ClCompile Include="Source.cpp" />
+    <ClCompile Include="Wheel.cpp" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="Box.h" />
+    <ClInclude Include="Lamp.h" />
+    <ClInclude Include="Roller.h" />
+    <ClInclude Include="Rover.h" />
+    <ClInclude Include="Wheel.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
