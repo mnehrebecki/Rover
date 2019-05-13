@@ -148,13 +148,16 @@
     <ClCompile Include="Roller.cpp" />
     <ClCompile Include="Rover.cpp" />
     <ClCompile Include="Source.cpp" />
+    <ClCompile Include="terrain.cpp" />
     <ClCompile Include="Wheel.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Box.h" />
     <ClInclude Include="Lamp.h" />
+    <ClInclude Include="OBJ_Loader.h" />
     <ClInclude Include="Roller.h" />
     <ClInclude Include="Rover.h" />
+    <ClInclude Include="terrain.h" />
     <ClInclude Include="Wheel.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />

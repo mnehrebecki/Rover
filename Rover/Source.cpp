@@ -38,6 +38,9 @@
 #include "Roller.h"
 #include "Rover.h"
 
+#include "terrain.h"
+
+
 #define glRGB(x, y, z)	glColor3ub((GLubyte)x, (GLubyte)y, (GLubyte)z)
 #define BITMAP_ID 0x4D42		// identyfikator formatu BMP
 #define GL_PI 3.14
@@ -676,8 +679,9 @@ void RenderScene(void)
 	//Sposób na odróŸnienie "przedniej" i "tylniej" œciany wielok¹ta:
 	glPolygonMode(GL_BACK, GL_LINE);
 
-	teren();
+	//teren();
 	rover.draw();
+	terrain mars;
 	//lazik();
 	//Uzyskanie siatki:
 	//glPolygonMode(GL_FRONT_AND_BACK,GL_LINE);
