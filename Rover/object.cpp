@@ -1,6 +1,6 @@
 #include "object.h"
 
-object::object(unsigned int texID, std::string file, GLfloat color[3], GLfloat pos[3], GLfloat rot[4], GLfloat scale) : texID(texID), scale(scale)
+object::object(unsigned int *texID, std::string file, GLfloat color[3], GLfloat pos[3], GLfloat rot[4], GLfloat scale) : texID(texID), scale(scale)
 {
 	floor.LoadFile(file);
 	this->pos[0] = pos[0];
@@ -22,12 +22,12 @@ object::~object()
 void object::draw() {
 	glPushMatrix();
 
-	//glRotatef(rot[0], rot[1], rot[2], rot[3]);
+	glRotatef(rot[0], rot[1], rot[2], rot[3]);
 	glScalef(scale, scale, scale);
 
-	//glEnable(GL_TEXTURE_2D);
-	//glBindTexture(GL_TEXTURE_2D, texID);
-	//glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
+	glEnable(GL_TEXTURE_2D);
+	glBindTexture(GL_TEXTURE_2D, *texID);
+	glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
 
 	for (int i = 0; i < floor.LoadedMeshes.size(); i++)
 	{

@@ -62,7 +62,8 @@ static GLfloat zRot = 0.0f;
 static GLsizei lastHeight;
 static GLsizei lastWidth;
 
-unsigned int dust = 0;
+unsigned int textures[3];
+
 
 unsigned int LoadTexture(const char* file, GLenum textureSlot)
 {
@@ -164,7 +165,7 @@ void calcNormal(float v[3][3], float out[3])
 // Change viewing volume and viewport.  Called when window is resized
 void ChangeSize(GLsizei w, GLsizei h)
 {
-	GLfloat nRange = 350.0f;
+	GLfloat nRange = 800.0f;
 	GLfloat fAspect;
 	// Prevent a divide by zero
 	if (h == 0)
@@ -188,9 +189,9 @@ void ChangeSize(GLsizei w, GLsizei h)
 		glOrtho(-nRange * w / h, nRange*w / h, -nRange, nRange, -nRange, nRange);
 
 	// Establish perspective: 
-	/*
-	gluPerspective(60.0f,fAspect,1.0,400);
-	*/
+	
+	//gluPerspective(90.0f,fAspect,10.0,nRange);
+	
 
 	glMatrixMode(GL_MODELVIEW);
 	glLoadIdentity();
@@ -204,11 +205,11 @@ void ChangeSize(GLsizei w, GLsizei h)
 void SetupRC()
 {
 	// Light values and coordinates
-	//GLfloat  ambientLight[] = { 0.3f, 0.3f, 0.3f, 1.0f };
-	//GLfloat  diffuseLight[] = { 0.7f, 0.7f, 0.7f, 1.0f };
-	//GLfloat  specular[] = { 1.0f, 1.0f, 1.0f, 1.0f};
-	//GLfloat	 lightPos[] = { 0.0f, 150.0f, 150.0f, 1.0f };
-	//GLfloat  specref[] =  { 1.0f, 1.0f, 1.0f, 1.0f };
+	GLfloat  ambientLight[] = { 0.3f, 0.3f, 0.3f, 1.0f };
+	GLfloat  diffuseLight[] = { 0.7f, 0.7f, 0.7f, 1.0f };
+	GLfloat  specular[] = { 1.0f, 1.0f, 1.0f, 1.0f};
+	GLfloat	 lightPos[] = { 60.0f, -1500.0f, 20.0f, 1.0f };
+	GLfloat  specref[] =  { 1.0f, 1.0f, 1.0f, 1.0f };
 
 
 	glEnable(GL_DEPTH_TEST);	// Hidden surface removal
@@ -216,25 +217,25 @@ void SetupRC()
 	//glEnable(GL_CULL_FACE);		// Do not calculate inside of jet
 
 	// Enable lighting
-	//glEnable(GL_LIGHTING);
+	glEnable(GL_LIGHTING);
 
 	// Setup and enable light 0
-	//glLightfv(GL_LIGHT0,GL_AMBIENT,ambientLight);
-	//glLightfv(GL_LIGHT0,GL_DIFFUSE,diffuseLight);
-	//glLightfv(GL_LIGHT0,GL_SPECULAR,specular);
-	//glLightfv(GL_LIGHT0,GL_POSITION,lightPos);
-	//glEnable(GL_LIGHT0);
+	glLightfv(GL_LIGHT0,GL_AMBIENT,ambientLight);
+	glLightfv(GL_LIGHT0,GL_DIFFUSE,diffuseLight);
+	glLightfv(GL_LIGHT0,GL_SPECULAR,specular);
+	glLightfv(GL_LIGHT0,GL_POSITION,lightPos);
+	glEnable(GL_LIGHT0);
 
 	// Enable color tracking
-	//glEnable(GL_COLOR_MATERIAL);
+	glEnable(GL_COLOR_MATERIAL);
 
 	// Set Material properties to follow glColor values
-	//glColorMaterial(GL_FRONT, GL_AMBIENT_AND_DIFFUSE);
+	glColorMaterial(GL_FRONT, GL_AMBIENT_AND_DIFFUSE);
 
 	// All materials hereafter have full specular reflectivity
 	// with a high shine
-	//glMaterialfv(GL_FRONT, GL_SPECULAR,specref);
-	//glMateriali(GL_FRONT,GL_SHININESS,128);
+	glMaterialfv(GL_FRONT, GL_SPECULAR,specref);
+	glMateriali(GL_FRONT,GL_SHININESS,40);
 
 
 	// White background
@@ -314,11 +315,22 @@ unsigned char *LoadBitmapFile(char *filename, BITMAPINFOHEADER *bitmapInfoHeader
 
 
 Rover rover;
-GLfloat rot[] = { 90,1,0,0 };
-GLfloat pos1[3] = { 0,0,-5 };
-GLfloat color1[3] = { 0.9,0.49,0.07 };
+GLfloat rot[] = { 0,1,0,0 };
+GLfloat rot2[] = { 0,0,0,0 };
 
-auto terrain = new object{ dust, "mars.obj", color1, pos1, rot, 10 };
+GLfloat pos1[3] = { 0,0,-5 };
+GLfloat pos2[3] = { 80,400, 100};
+GLfloat pos3[3] = { -320,-800, 40 };
+
+GLfloat color1[3] = { 0.9,0.49,0.07 };
+GLfloat color2[3] = { 0.8,0.59,0.07 };
+GLfloat color3[3] = { 0.8,0.9,0.7 };
+
+
+auto terrain = new object{ &textures[0], "mars.obj", color1, pos1, rot, 20 };
+auto rock = new object{ &textures[1], "rock.obj", color2,pos2,rot2,10 };
+auto rock2 = new object{ &textures[2], "rock2.obj", color3, pos3,rot2,1 };
+
 void RenderScene(void)
 {
 	//float normal[3];	// Storeage for calculated surface normal
@@ -340,21 +352,34 @@ void RenderScene(void)
 	//glPolygonMode(GL_BACK, GL_LINE);
 	
 	//teren();
-	rover.draw();
+	glPushMatrix();
 	glEnable(GL_TEXTURE_2D);
-	glBindTexture(GL_TEXTURE_2D, dust);
+	glBindTexture(GL_TEXTURE_2D, textures[0]);
 	glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
 	terrain->draw();
-	//lazik();
-	//Uzyskanie siatki:
-	//glPolygonMode(GL_FRONT_AND_BACK,GL_LINE);
+	glDisable(GL_TEXTURE_2D);
+	glPopMatrix();
 
-	//Wyrysowanie prostokata:
-	//glRectd(-10.0,-10.0,20.0,20.0);
+	glPushMatrix();
+	glEnable(GL_TEXTURE_2D);
+	glBindTexture(GL_TEXTURE_2D, textures[1]);
+	glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
+	rock->draw();
+	glDisable(GL_TEXTURE_2D);
+	glPopMatrix();
 
-	/////////////////////////////////////////////////////////////////
-	/////////////////////////////////////////////////////////////////
-	/////////////////////////////////////////////////////////////////
+	glPushMatrix();
+	glEnable(GL_TEXTURE_2D);
+	glBindTexture(GL_TEXTURE_2D, textures[2]);
+	glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
+	rock2->draw();
+	glDisable(GL_TEXTURE_2D);
+	glPopMatrix();
+
+	
+	rover.draw();
+	
+	
 	glPopMatrix();
 	glMatrixMode(GL_MODELVIEW);
 
@@ -567,8 +592,14 @@ LRESULT CALLBACK WndProc(HWND    hWnd,
 		SetupRC();
 		glGenTextures(2, &texture[0]);                  // tworzy obiekt tekstury			
 
+
+
+
+		textures[0] = LoadTexture("dust.bmp", 1);
+		textures[1] = LoadTexture("rock.png", 1);
+		textures[2] = LoadTexture("rock2.png", 1);
 		// ³aduje pierwszy obraz tekstury:
-		bitmapData = LoadBitmapFile((char*)"dust.png", &bitmapInfoHeader);
+		//bitmapData = LoadBitmapFile((char*)"dust.bmp", &bitmapInfoHeader);
 
 		glBindTexture(GL_TEXTURE_2D, texture[0]);       // aktywuje obiekt tekstury
 
@@ -601,7 +632,7 @@ LRESULT CALLBACK WndProc(HWND    hWnd,
 
 		if (bitmapData)
 			free(bitmapData);
-		dust = LoadTexture("dust.png", 1);
+		
 
 		// ustalenie sposobu mieszania tekstury z t³em
 		glTexEnvi(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_MODULATE);
