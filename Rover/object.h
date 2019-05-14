@@ -8,7 +8,7 @@
 class object
 {
 public:
-	object(unsigned int texID, std::string file, GLfloat color[3], GLfloat pos[3], GLfloat rot[4], GLfloat scale);
+	object(unsigned int *texID, std::string file, GLfloat color[3], GLfloat pos[3], GLfloat rot[4], GLfloat scale);
 	~object();
 	void draw();
 private:
@@ -19,5 +19,5 @@ private:
 	objl::Loader floor;
 	objl::Mesh curMesh;
 	std::string file;
-	unsigned int texID;
+	unsigned int *texID;
 };
