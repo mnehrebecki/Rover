@@ -38,6 +38,11 @@
 #include "Roller.h"
 #include "Rover.h"
 
+#include "object.h"
+#define STB_IMAGE_IMPLEMENTATION
+#include "stb_image.h"
+
+
 #define glRGB(x, y, z)	glColor3ub((GLubyte)x, (GLubyte)y, (GLubyte)z)
 #define BITMAP_ID 0x4D42		// identyfikator formatu BMP
 #define GL_PI 3.14
@@ -56,6 +61,32 @@ static GLfloat zRot = 0.0f;
 
 static GLsizei lastHeight;
 static GLsizei lastWidth;
+
+unsigned int dust = 0;
+
+unsigned int LoadTexture(const char* file, GLenum textureSlot)
+{
+	GLuint texHandle;
+	// Copy file to OpenGL
+	glGenTextures(textureSlot, &texHandle);
+	glBindTexture(GL_TEXTURE_2D, texHandle);
+	glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+	glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+
+	int width, height, nrChannels;
+	const auto data = stbi_load(file, &width, &height, &nrChannels, 0);
+	if (data)
+	{
+		//glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, width, height, 0, GL_RGB, GL_UNSIGNED_BYTE, data);
+		gluBuild2DMipmaps(GL_TEXTURE_2D, nrChannels, width, height, GL_RGBA, GL_UNSIGNED_BYTE, data);
+	}
+	else
+	{
+		//error
+	}
+	stbi_image_free(data);
+	return texHandle;
+}
 
 // Opis tekstury
 BITMAPINFOHEADER	bitmapInfoHeader;	// nag³ówek obrazu
@@ -212,60 +243,6 @@ void SetupRC()
 	glColor3f(0.0, 0.0, 0.0);
 }
 
-void skrzynka(void)
-{
-	glColor3d(0.8, 0.7, 0.3);
-
-
-	glEnable(GL_TEXTURE_2D); // W³¹cz teksturowanie
-
-	glBindTexture(GL_TEXTURE_2D, texture[0]);
-	glBegin(GL_QUADS);
-	glNormal3d(0, 0, 1);
-	glTexCoord2d(1.0, 1.0); glVertex3d(25, 25, 25);
-	glTexCoord2d(0.0, 1.0); glVertex3d(-25, 25, 25);
-	glTexCoord2d(0.0, 0.0); glVertex3d(-25, -25, 25);
-	glTexCoord2d(1.0, 0.0); glVertex3d(25, -25, 25);
-	glEnd();
-	glBindTexture(GL_TEXTURE_2D, texture[1]);
-	glBegin(GL_QUADS);
-	glNormal3d(1, 0, 0);
-	glTexCoord2d(1.0, 1.0); glVertex3d(25, 25, 25);
-	glTexCoord2d(0.0, 1.0); glVertex3d(25, -25, 25);
-	glTexCoord2d(0.0, 0.0); glVertex3d(25, -25, -25);
-	glTexCoord2d(1.0, 0.0); glVertex3d(25, 25, -25);
-	glEnd();
-
-	glDisable(GL_TEXTURE_2D); // Wy³¹cz teksturowanie
-
-
-
-	glBegin(GL_QUADS);
-	glNormal3d(0, 0, -1);
-	glVertex3d(25, 25, -25);
-	glVertex3d(25, -25, -25);
-	glVertex3d(-25, -25, -25);
-	glVertex3d(-25, 25, -25);
-
-	glNormal3d(-1, 0, 0);
-	glVertex3d(-25, 25, -25);
-	glVertex3d(-25, -25, -25);
-	glVertex3d(-25, -25, 25);
-	glVertex3d(-25, 25, 25);
-
-	glNormal3d(0, 1, 0);
-	glVertex3d(25, 25, 25);
-	glVertex3d(25, 25, -25);
-	glVertex3d(-25, 25, -25);
-	glVertex3d(-25, 25, 25);
-
-	glNormal3d(0, -1, 0);
-	glVertex3d(25, -25, 25);
-	glVertex3d(-25, -25, 25);
-	glVertex3d(-25, -25, -25);
-	glVertex3d(25, -25, -25);
-	glEnd();
-}
 
 
 // LoadBitmapFile
@@ -336,326 +313,12 @@ unsigned char *LoadBitmapFile(char *filename, BITMAPINFOHEADER *bitmapInfoHeader
 }
 
 
-
-
-
-void wheel(double r, double h, GLfloat srodek[])
-{
-	double x, y, alpha, PI = 3.14;
-	glBegin(GL_TRIANGLE_FAN);
-	glColor3d(0.300, 0.300, 0.300);
-	glVertex3fv(srodek);
-	for (alpha = 0; alpha <= 2 * PI; alpha += PI / 8.0)
-	{
-		x = srodek[0] + r * sin(alpha);
-		y = srodek[1] + r * cos(alpha);
-		glVertex3d(x, y, srodek[2]);
-	}
-	glEnd();
-
-	glBegin(GL_TRIANGLE_STRIP);
-	glColor3d(0.0, 0.0, 0);
-	for (alpha = 0.0; alpha <= 2 * PI; alpha += PI / 8.0)
-	{
-		x = srodek[0] + r * sin(alpha);
-		y = srodek[1] + r * cos(alpha);
-		glVertex3d(x, y, srodek[2]);
-		glVertex3d(x, y, h + srodek[2]);
-	}
-	glEnd();
-
-	glBegin(GL_TRIANGLE_FAN);
-	glColor3d(0.300, 0.300, 0.300);
-	srodek[2] += h;
-	glVertex3fv(srodek);
-	for (alpha = 0; alpha >= -2 * PI; alpha -= PI / 8.0)
-	{
-		x = srodek[0] + r * sin(alpha);
-		y = srodek[1] + r * cos(alpha);
-		glVertex3d(x, y, srodek[2]);
-	}
-	glEnd();
-}
-
-void walec_prawo(double r, double h, GLfloat srodek[])
-{
-	double x, y, z, alpha, PI = 3.14;
-	glBegin(GL_TRIANGLE_FAN);
-	glColor3d(1, 1, 0);
-	glVertex3fv(srodek);
-	for (alpha = 0; alpha <= 2 * PI; alpha += PI / 8.0)
-	{
-		y = srodek[1] + r * sin(alpha);
-		z = srodek[2] + r * cos(alpha);
-		glVertex3d(srodek[0], y, z);
-	}
-	glEnd();
-
-	glBegin(GL_TRIANGLE_STRIP);
-	glColor3d(0.0, 0.0, 0);
-	for (alpha = 0.0; alpha <= 2 * PI; alpha += PI / 8.0)
-	{
-		y = srodek[1] + r * sin(alpha);
-		z = srodek[2] + r * cos(alpha);
-		glVertex3d(srodek[0], y, z);
-		glVertex3d(h + srodek[0], y, z);
-	}
-	glEnd();
-
-	glBegin(GL_TRIANGLE_FAN);
-	glColor3d(1, 1, 0);
-	srodek[0] += h;
-	glVertex3fv(srodek);
-	for (alpha = 0; alpha >= -2 * PI; alpha -= PI / 8.0)
-	{
-		y = srodek[1] + r * sin(alpha);
-		z = srodek[2] + r * cos(alpha);
-		glVertex3d(srodek[0], y, z);
-	}
-	glEnd();
-}
-
-void walec_pion(double r, double h, GLfloat srodek[])
-{
-	double x, y, z, alpha, PI = 3.14;
-	glBegin(GL_TRIANGLE_FAN);
-	glColor3d(0.216, 0.210, 0.210);
-	glVertex3fv(srodek);
-	for (alpha = 0; alpha <= 2 * PI; alpha += PI / 8.0)
-	{
-		x = srodek[0] + r * sin(alpha);
-		z = srodek[2] + r * cos(alpha);
-		glVertex3d(x, srodek[1], z);
-	}
-	glEnd();
-
-	glBegin(GL_TRIANGLE_STRIP);
-	glColor3d(0.216, 0.210, 0.210);
-	for (alpha = 0.0; alpha <= 2 * PI; alpha += PI / 8.0)
-	{
-		x = srodek[0] + r * sin(alpha);
-		z = srodek[2] + r * cos(alpha);
-		glVertex3d(x, srodek[1], z);
-		glVertex3d(x, h + srodek[1], z);
-	}
-	glEnd();
-
-	glBegin(GL_TRIANGLE_FAN);
-	glColor3d(0.216, 0.210, 0.210);
-	srodek[1] += h;
-	glVertex3fv(srodek);
-	for (alpha = 0; alpha >= -2 * PI; alpha -= PI / 8.0)
-	{
-		x = srodek[0] + r * sin(alpha);
-		z = srodek[2] + r * cos(alpha);
-		glVertex3d(x, srodek[1], z);
-	}
-	glEnd();
-}
-
-void prostopadloscian(double szer, double wys, double gleb, GLfloat poczatek[])
-{
-	float x = 0, y = 0, z = 0;
-	int ile;
-	glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
-	//front
-	for (int i = 0; i < szer; i++)
-	{
-		glBegin(GL_TRIANGLE_STRIP);
-		glColor3d(0.300, 0.300, 0.300);
-
-		for (int j = 0; j <= wys;j++)
-		{
-			glVertex3d(poczatek[0] + x, poczatek[1] + y, poczatek[2]);
-			glVertex3d(poczatek[0] + 1.0 + x, poczatek[1] + y, poczatek[2]);
-
-			y += 1;
-		}
-		x += 1;
-		y = 0;
-		glEnd();
-
-	}
-	//ty³
-	x = 0;
-	for (int i = 0; i < szer; i++)
-	{
-		glBegin(GL_TRIANGLE_STRIP);
-		glColor3d(0.300, 0.300, 0.300);
-
-		for (int j = 0; j <= wys; j++)
-		{
-			glVertex3d(poczatek[0] + x, poczatek[1] + y, poczatek[2] + gleb);
-			glVertex3d(poczatek[0] + 1.0 + x, poczatek[1] + y, poczatek[2] + gleb);
-
-			y += 1;
-		}
-		x += 1;
-		y = 0;
-		glEnd();
-
-	}
-
-	//boki
-	x = 0, y = 0, z = 0;
-	for (int i = 0; i < gleb; i++)
-	{
-		glBegin(GL_TRIANGLE_STRIP);
-		glColor3d(0.230, 0.230, 0.230);
-
-		for (int j = 0; j <= wys; j++)
-		{
-			glVertex3d(poczatek[0] + x, poczatek[1] + y, poczatek[2] + z);
-			glVertex3d(poczatek[0] + x, poczatek[1] + y, poczatek[2] + 1.0 + z);
-
-			y += 1;
-		}
-		y -= 1;
-		for (int j = 0; j <= szer; j++)
-		{
-			glVertex3d(poczatek[0] + x, poczatek[1] + y, poczatek[2] + z);
-			glVertex3d(poczatek[0] + x, poczatek[1] + y, poczatek[2] + 1.0 + z);
-
-			x += 1;
-		}
-		x -= 1;
-		for (int j = 0; j <= wys; j++)
-		{
-			glVertex3d(poczatek[0] + x, poczatek[1] + y, poczatek[2] + z);
-			glVertex3d(poczatek[0] + x, poczatek[1] + y, poczatek[2] + 1.0 + z);
-
-			y -= 1;
-		}
-		y += 1;
-		for (int j = 0; j <= szer; j++)
-		{
-			glVertex3d(poczatek[0] + x, poczatek[1] + y, poczatek[2] + z);
-			glVertex3d(poczatek[0] + x, poczatek[1] + y, poczatek[2] + 1.0 + z);
-
-			x -= 1;
-		}
-		z += 1;
-
-		y = 0;
-		x = 0;
-		glEnd();
-	}
-
-
-
-}
-
-// Called to draw scene
-
-void lazik()
-{
-		glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
-		GLfloat srodek[3] = { -50.0f,15.0f,40.0f };		//wsp œrodków kó³
-		GLfloat srodek2[3] = { 50.0f,15.0f,40.0f };
-		GLfloat srodek3[3] = { -50.0f,15.0f,-40.0f };
-		GLfloat srodek4[3] = { 50.0f,15.0f, -40.0f };
-
-	
-		wheel(15, 15, srodek);							//ko³a
-		wheel(15, 15, srodek2);
-		wheel(15, 15, srodek3);
-		wheel(15, 15, srodek4);
-
-		GLfloat poczatek[3] = { -55.0f,35.0f, -20.0f };	//wsp pocz¹tku prostok¹tów
-		prostopadloscian(10, 5, 55, poczatek);			//oœ tylna
-
-		GLfloat poczatek1[3] = { -55.0f,10.0f, -25.0f };
-		prostopadloscian(10, 30, 5, poczatek1);			//³¹czenie kó³ ty³
-
-		GLfloat poczatek2[3] = { -55.0f,10.0f, 35.0f };
-		prostopadloscian(10, 30, 5, poczatek2);
-
-
-		GLfloat poczatek3[3] = { 45.0f,35.0f, -20.0f };
-		prostopadloscian(10, 5, 55, poczatek3);			//oœ przednia
-
-		GLfloat poczatek4[3] = { 45.0f,10.0f, -25.0f };
-		prostopadloscian(10, 30, 5, poczatek4);			//³¹czenie kó³ ty³
-
-		GLfloat poczatek5[3] = { 45.0f,10.0f, 35.0f };
-		prostopadloscian(10, 30, 5, poczatek5);
-
-		GLfloat poczatek6[3] = { -60.0f,40.0f, -20.0f };
-		prostopadloscian(120, 10, 55, poczatek6);		//pod³oga
-
-		GLfloat srodek5[3] = { 60.0f,45.0f, -15.0f };
-		walec_prawo(5, 5, srodek5);						//œwiat³o prawe
-
-		GLfloat srodek6[3] = { 60.0f,45.0f, 7.5f };
-		walec_prawo(5, 5, srodek6);						//œwiat³o œrodkowe
-
-		GLfloat srodek7[3] = { 60.0f,45.0f, 30.0f };
-		walec_prawo(5, 5, srodek7);						//œwiat³o lewe
-
-		GLfloat srodek8[3] = { -35.0f,50.0f, 7.5f };
-		walec_pion(3, 55, srodek8);						//dr¹¿ek kamery
-
-		GLfloat poczatek7[3] = { -38.0f, 102.0f, 10.5f };
-		prostopadloscian(6, 10, 2, poczatek7);			//mocowanie kamery
-
-		GLfloat poczatek8[3] = { -38.0f, 102.0f, 2.5f };
-		prostopadloscian(6, 10, 2, poczatek8);
-
-		GLfloat poczatek9[3] = { -41.0f, 107.0f, 4.5f };
-		prostopadloscian(12, 6, 6, poczatek9);			//kamera
-
-		GLfloat srodek9[3] = { -29.0f,111.0f, 7.5f };
-		walec_prawo(2, 2, srodek9);						//obiektyw kamery
-
-		GLfloat srodek_antena[3] = { -50.0f,50.0f, 25.0f };
-		walec_pion(0.35f, 80, srodek_antena);
-
-
-		GLfloat srodek_ramie[3] = { 50.0f,50.0f, 7.5f };
-		walec_pion(3, 30, srodek_ramie);						//dr¹¿ek ramienia
-
-		GLfloat poczatek10[3] = { 47.0f, 77.0f, 10.5f };
-		prostopadloscian(6, 10, 2, poczatek10);			//mocowanie ramienia
-
-		GLfloat poczatek11[3] = { 47.0f, 77.0f, 2.5f };
-		prostopadloscian(6, 10, 2, poczatek11);
-
-		GLfloat srodek_ramie2[3] = { 47.0f, 85.0f, 7.5f };
-		walec_prawo(3, 40, srodek_ramie2);
-
-		GLfloat srodek_ramie3[3] = { 91.0f, 85.0f, 7.5f };
-		walec_prawo(3, 40, srodek_ramie3);
-
-		GLfloat poczatek12[3] = { 84.0f, 82.0f, 10.5f };
-		prostopadloscian(10, 6, 2, poczatek12);			//mocowanie ramienia
-
-		GLfloat poczatek13[3] = { 84.0f, 82.0f, 2.5f };
-		prostopadloscian(10, 6, 2, poczatek13);
-
-		GLfloat poczatek14[3] = { 128.0f, 82.0f, 10.5f };
-		prostopadloscian(10, 6, 2, poczatek14);			//mocowanie ramienia
-
-		GLfloat poczatek15[3] = { 128.0f, 82.0f, 2.5f };
-		prostopadloscian(10, 6, 2, poczatek15);
-}
-
-void teren()
-{
-
-	glBegin(GL_POLYGON);
-	glColor3d(0.8, 0, 0);
-	glVertex3d(-200.0, 0, -200);
-	glVertex3d(-200.0, 0, 200);
-	glVertex3d(200.0, 0, 200);
-	glVertex3d(200.0, 0, -200);
-	glEnd();
-	GLfloat podloga1[3] = { 200.0,-1,-200 };
-	prostopadloscian(400, 1, 400, podloga1);
-
-}
-
 Rover rover;
+GLfloat rot[] = { 90,1,0,0 };
+GLfloat pos1[3] = { 0,0,-5 };
+GLfloat color1[3] = { 0.9,0.49,0.07 };
 
+auto terrain = new object{ dust, "mars.obj", color1, pos1, rot, 10 };
 void RenderScene(void)
 {
 	//float normal[3];	// Storeage for calculated surface normal
@@ -672,12 +335,16 @@ void RenderScene(void)
 	/////////////////////////////////////////////////////////////////
 	// MIEJSCE NA KOD OPENGL DO TWORZENIA WLASNYCH SCEN:		   //
 	/////////////////////////////////////////////////////////////////
-
+	
 	//Sposób na odróŸnienie "przedniej" i "tylniej" œciany wielok¹ta:
-	glPolygonMode(GL_BACK, GL_LINE);
-
-	teren();
+	//glPolygonMode(GL_BACK, GL_LINE);
+	
+	//teren();
 	rover.draw();
+	glEnable(GL_TEXTURE_2D);
+	glBindTexture(GL_TEXTURE_2D, dust);
+	glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
+	terrain->draw();
 	//lazik();
 	//Uzyskanie siatki:
 	//glPolygonMode(GL_FRONT_AND_BACK,GL_LINE);
@@ -901,7 +568,7 @@ LRESULT CALLBACK WndProc(HWND    hWnd,
 		glGenTextures(2, &texture[0]);                  // tworzy obiekt tekstury			
 
 		// ³aduje pierwszy obraz tekstury:
-		//bitmapData = LoadBitmapFile("Bitmapy\\checker.bmp", &bitmapInfoHeader);
+		bitmapData = LoadBitmapFile((char*)"dust.png", &bitmapInfoHeader);
 
 		glBindTexture(GL_TEXTURE_2D, texture[0]);       // aktywuje obiekt tekstury
 
@@ -934,6 +601,7 @@ LRESULT CALLBACK WndProc(HWND    hWnd,
 
 		if (bitmapData)
 			free(bitmapData);
+		dust = LoadTexture("dust.png", 1);
 
 		// ustalenie sposobu mieszania tekstury z t³em
 		glTexEnvi(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_MODULATE);
@@ -1024,16 +692,16 @@ LRESULT CALLBACK WndProc(HWND    hWnd,
 	case WM_KEYDOWN:
 	{
 		if (wParam == VK_UP)
-			xRot -= 1.0f;
+			xRot -= 5.0f;
 
 		if (wParam == VK_DOWN)
-			xRot += 1.0f;
+			xRot += 5.0f;
 
 		if (wParam == VK_LEFT)
-			yRot -= 1.0f;
+			yRot -= 5.0f;
 
 		if (wParam == VK_RIGHT)
-			yRot += 1.0f;
+			yRot += 5.0f;
 
 		if (wParam == 'Q')
 			zRot -= 5.0f;
