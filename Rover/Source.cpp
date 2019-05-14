@@ -62,7 +62,8 @@ static GLfloat zRot = 0.0f;
 static GLsizei lastHeight;
 static GLsizei lastWidth;
 
-unsigned int dust = 0;
+unsigned int textures[2];
+
 
 unsigned int LoadTexture(const char* file, GLenum textureSlot)
 {
@@ -322,8 +323,8 @@ GLfloat color1[3] = { 0.9,0.49,0.07 };
 GLfloat color2[3] = { 0.8,0.59,0.07 };
 
 
-auto terrain = new object{ &dust, "mars.obj", color1, pos1, rot, 20 };
-auto rock = new object{ &dust, "rock.obj", color2,pos2,rot2,10 };
+auto terrain = new object{ &textures[0], "mars.obj", color1, pos1, rot, 20 };
+auto rock = new object{ &textures[1], "rock.obj", color2,pos2,rot2,10 };
 
 void RenderScene(void)
 {
@@ -346,13 +347,23 @@ void RenderScene(void)
 	//glPolygonMode(GL_BACK, GL_LINE);
 	
 	//teren();
-	
+	glPushMatrix();
 	glEnable(GL_TEXTURE_2D);
-	glBindTexture(GL_TEXTURE_2D, dust);
+	glBindTexture(GL_TEXTURE_2D, textures[0]);
 	glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
 	terrain->draw();
 	glDisable(GL_TEXTURE_2D);
+	glPopMatrix();
+
+	glPushMatrix();
+	glEnable(GL_TEXTURE_2D);
+	glBindTexture(GL_TEXTURE_2D, textures[1]);
+	glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
 	rock->draw();
+	glDisable(GL_TEXTURE_2D);
+	glPopMatrix();
+
+	
 	rover.draw();
 	
 	
@@ -568,8 +579,13 @@ LRESULT CALLBACK WndProc(HWND    hWnd,
 		SetupRC();
 		glGenTextures(2, &texture[0]);                  // tworzy obiekt tekstury			
 
+
+
+
+		textures[0] = LoadTexture("dust.bmp", 1);
+		textures[1] = LoadTexture("rock.png", 1);
 		// ³aduje pierwszy obraz tekstury:
-		bitmapData = LoadBitmapFile((char*)"dust.bmp", &bitmapInfoHeader);
+		//bitmapData = LoadBitmapFile((char*)"dust.bmp", &bitmapInfoHeader);
 
 		glBindTexture(GL_TEXTURE_2D, texture[0]);       // aktywuje obiekt tekstury
 
@@ -602,7 +618,7 @@ LRESULT CALLBACK WndProc(HWND    hWnd,
 
 		if (bitmapData)
 			free(bitmapData);
-		dust = LoadTexture("dust.bmp", 1);
+		
 
 		// ustalenie sposobu mieszania tekstury z t³em
 		glTexEnvi(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_MODULATE);
