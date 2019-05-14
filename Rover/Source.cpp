@@ -62,7 +62,7 @@ static GLfloat zRot = 0.0f;
 static GLsizei lastHeight;
 static GLsizei lastWidth;
 
-unsigned int textures[2];
+unsigned int textures[3];
 
 
 unsigned int LoadTexture(const char* file, GLenum textureSlot)
@@ -317,14 +317,19 @@ unsigned char *LoadBitmapFile(char *filename, BITMAPINFOHEADER *bitmapInfoHeader
 Rover rover;
 GLfloat rot[] = { 0,1,0,0 };
 GLfloat rot2[] = { 0,0,0,0 };
+
 GLfloat pos1[3] = { 0,0,-5 };
 GLfloat pos2[3] = { 80,400, 100};
+GLfloat pos3[3] = { -320,-800, 40 };
+
 GLfloat color1[3] = { 0.9,0.49,0.07 };
 GLfloat color2[3] = { 0.8,0.59,0.07 };
+GLfloat color3[3] = { 0.8,0.59,0.07 };
 
 
 auto terrain = new object{ &textures[0], "mars.obj", color1, pos1, rot, 20 };
 auto rock = new object{ &textures[1], "rock.obj", color2,pos2,rot2,10 };
+auto rock2 = new object{ &textures[2], "rock2.obj", color3, pos3,rot2,1 };
 
 void RenderScene(void)
 {
@@ -360,6 +365,14 @@ void RenderScene(void)
 	glBindTexture(GL_TEXTURE_2D, textures[1]);
 	glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
 	rock->draw();
+	glDisable(GL_TEXTURE_2D);
+	glPopMatrix();
+
+	glPushMatrix();
+	glEnable(GL_TEXTURE_2D);
+	glBindTexture(GL_TEXTURE_2D, textures[2]);
+	glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
+	rock2->draw();
 	glDisable(GL_TEXTURE_2D);
 	glPopMatrix();
 
@@ -584,6 +597,7 @@ LRESULT CALLBACK WndProc(HWND    hWnd,
 
 		textures[0] = LoadTexture("dust.bmp", 1);
 		textures[1] = LoadTexture("rock.png", 1);
+		textures[2] = LoadTexture("rock2.png", 1);
 		// ³aduje pierwszy obraz tekstury:
 		//bitmapData = LoadBitmapFile((char*)"dust.bmp", &bitmapInfoHeader);
 
