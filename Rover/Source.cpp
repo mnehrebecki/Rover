@@ -208,7 +208,7 @@ void SetupRC()
 	GLfloat  ambientLight[] = { 0.3f, 0.3f, 0.3f, 1.0f };
 	GLfloat  diffuseLight[] = { 0.7f, 0.7f, 0.7f, 1.0f };
 	GLfloat  specular[] = { 1.0f, 1.0f, 1.0f, 1.0f};
-	GLfloat	 lightPos[] = { 100.0f, 50.0f, 100.0f, 1.0f };
+	GLfloat	 lightPos[] = { 60.0f, -1500.0f, 20.0f, 1.0f };
 	GLfloat  specref[] =  { 1.0f, 1.0f, 1.0f, 1.0f };
 
 
@@ -324,7 +324,7 @@ GLfloat pos3[3] = { -320,-800, 40 };
 
 GLfloat color1[3] = { 0.9,0.49,0.07 };
 GLfloat color2[3] = { 0.8,0.59,0.07 };
-GLfloat color3[3] = { 0.8,0.59,0.07 };
+GLfloat color3[3] = { 0.8,0.9,0.7 };
 
 
 auto terrain = new object{ &textures[0], "mars.obj", color1, pos1, rot, 20 };
