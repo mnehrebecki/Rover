@@ -320,16 +320,16 @@ GLfloat rot2[] = { 0,0,0,0 };
 
 GLfloat pos1[3] = { 0,0,-5 };
 GLfloat pos2[3] = { 80,400, 100};
-GLfloat pos3[3] = { -520,-800, 40 };
+GLfloat pos3[3] = { -320,-800, 40 };
 
 GLfloat color1[3] = { 0.9,0.49,0.07 };
 GLfloat color2[3] = { 0.8,0.59,0.07 };
-GLfloat color3[3] = { 0.8,0.8,0.7 };
+GLfloat color3[3] = { 0.8,0.59,0.07 };
 
 
 auto terrain = new object{ &textures[0], "mars.obj", color1, pos1, rot, 20 };
 auto rock = new object{ &textures[1], "rock.obj", color2,pos2,rot2,10 };
-auto rock2 = new object{ &textures[2], "rock2.obj", color3, pos3,rot2,1 };	//zmienilem na kolory i teksture z 2 bo brzydka
+auto rock2 = new object{ &textures[2], "rock2.obj", color3, pos3,rot2,1 };
 
 void RenderScene(void)
 {
