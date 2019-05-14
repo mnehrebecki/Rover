@@ -243,60 +243,6 @@ void SetupRC()
 	glColor3f(0.0, 0.0, 0.0);
 }
 
-void skrzynka(void)
-{
-	glColor3d(0.8, 0.7, 0.3);
-
-
-	glEnable(GL_TEXTURE_2D); // W³¹cz teksturowanie
-
-	glBindTexture(GL_TEXTURE_2D, texture[0]);
-	glBegin(GL_QUADS);
-	glNormal3d(0, 0, 1);
-	glTexCoord2d(1.0, 1.0); glVertex3d(25, 25, 25);
-	glTexCoord2d(0.0, 1.0); glVertex3d(-25, 25, 25);
-	glTexCoord2d(0.0, 0.0); glVertex3d(-25, -25, 25);
-	glTexCoord2d(1.0, 0.0); glVertex3d(25, -25, 25);
-	glEnd();
-	glBindTexture(GL_TEXTURE_2D, texture[1]);
-	glBegin(GL_QUADS);
-	glNormal3d(1, 0, 0);
-	glTexCoord2d(1.0, 1.0); glVertex3d(25, 25, 25);
-	glTexCoord2d(0.0, 1.0); glVertex3d(25, -25, 25);
-	glTexCoord2d(0.0, 0.0); glVertex3d(25, -25, -25);
-	glTexCoord2d(1.0, 0.0); glVertex3d(25, 25, -25);
-	glEnd();
-
-	glDisable(GL_TEXTURE_2D); // Wy³¹cz teksturowanie
-
-
-
-	glBegin(GL_QUADS);
-	glNormal3d(0, 0, -1);
-	glVertex3d(25, 25, -25);
-	glVertex3d(25, -25, -25);
-	glVertex3d(-25, -25, -25);
-	glVertex3d(-25, 25, -25);
-
-	glNormal3d(-1, 0, 0);
-	glVertex3d(-25, 25, -25);
-	glVertex3d(-25, -25, -25);
-	glVertex3d(-25, -25, 25);
-	glVertex3d(-25, 25, 25);
-
-	glNormal3d(0, 1, 0);
-	glVertex3d(25, 25, 25);
-	glVertex3d(25, 25, -25);
-	glVertex3d(-25, 25, -25);
-	glVertex3d(-25, 25, 25);
-
-	glNormal3d(0, -1, 0);
-	glVertex3d(25, -25, 25);
-	glVertex3d(-25, -25, 25);
-	glVertex3d(-25, -25, -25);
-	glVertex3d(25, -25, -25);
-	glEnd();
-}
 
 
 // LoadBitmapFile
