@@ -38,7 +38,9 @@
 #include "Roller.h"
 #include "Rover.h"
 
-#include "terrain.h"
+#include "object.h"
+#define STB_IMAGE_IMPLEMENTATION
+#include "stb_image.h"
 
 
 #define glRGB(x, y, z)	glColor3ub((GLubyte)x, (GLubyte)y, (GLubyte)z)
@@ -59,6 +61,32 @@ static GLfloat zRot = 0.0f;
 
 static GLsizei lastHeight;
 static GLsizei lastWidth;
+
+unsigned int dust = 0;
+
+unsigned int LoadTexture(const char* file, GLenum textureSlot)
+{
+	GLuint texHandle;
+	// Copy file to OpenGL
+	glGenTextures(textureSlot, &texHandle);
+	glBindTexture(GL_TEXTURE_2D, texHandle);
+	glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+	glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+
+	int width, height, nrChannels;
+	const auto data = stbi_load(file, &width, &height, &nrChannels, 0);
+	if (data)
+	{
+		//glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, width, height, 0, GL_RGB, GL_UNSIGNED_BYTE, data);
+		gluBuild2DMipmaps(GL_TEXTURE_2D, nrChannels, width, height, GL_RGBA, GL_UNSIGNED_BYTE, data);
+	}
+	else
+	{
+		//error
+	}
+	stbi_image_free(data);
+	return texHandle;
+}
 
 // Opis tekstury
 BITMAPINFOHEADER	bitmapInfoHeader;	// nag³ówek obrazu
@@ -642,23 +670,14 @@ void lazik()
 		prostopadloscian(10, 6, 2, poczatek15);
 }
 
-void teren()
-{
 
-	glBegin(GL_POLYGON);
-	glColor3d(0.8, 0, 0);
-	glVertex3d(-200.0, 0, -200);
-	glVertex3d(-200.0, 0, 200);
-	glVertex3d(200.0, 0, 200);
-	glVertex3d(200.0, 0, -200);
-	glEnd();
-	GLfloat podloga1[3] = { 200.0,-1,-200 };
-	prostopadloscian(400, 1, 400, podloga1);
-
-}
 
 Rover rover;
+GLfloat rot[] = { 90,1,0,0 };
+GLfloat pos1[3] = { 0,0,-5 };
+GLfloat color1[3] = { 0.9,0.49,0.07 };
 
+auto terrain = new object{ dust, "mars.obj", color1, pos1, rot, 10 };
 void RenderScene(void)
 {
 	//float normal[3];	// Storeage for calculated surface normal
@@ -675,13 +694,16 @@ void RenderScene(void)
 	/////////////////////////////////////////////////////////////////
 	// MIEJSCE NA KOD OPENGL DO TWORZENIA WLASNYCH SCEN:		   //
 	/////////////////////////////////////////////////////////////////
-
+	
 	//Sposób na odróŸnienie "przedniej" i "tylniej" œciany wielok¹ta:
-	glPolygonMode(GL_BACK, GL_LINE);
-
+	//glPolygonMode(GL_BACK, GL_LINE);
+	
 	//teren();
 	rover.draw();
-	terrain mars;
+	glEnable(GL_TEXTURE_2D);
+	glBindTexture(GL_TEXTURE_2D, dust);
+	glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
+	terrain->draw();
 	//lazik();
 	//Uzyskanie siatki:
 	//glPolygonMode(GL_FRONT_AND_BACK,GL_LINE);
@@ -1028,16 +1050,16 @@ LRESULT CALLBACK WndProc(HWND    hWnd,
 	case WM_KEYDOWN:
 	{
 		if (wParam == VK_UP)
-			xRot -= 1.0f;
+			xRot -= 5.0f;
 
 		if (wParam == VK_DOWN)
-			xRot += 1.0f;
+			xRot += 5.0f;
 
 		if (wParam == VK_LEFT)
-			yRot -= 1.0f;
+			yRot -= 5.0f;
 
 		if (wParam == VK_RIGHT)
-			yRot += 1.0f;
+			yRot += 5.0f;
 
 		if (wParam == 'Q')
 			zRot -= 5.0f;
