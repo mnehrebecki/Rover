@@ -927,7 +927,7 @@ LRESULT CALLBACK WndProc(HWND    hWnd,
 		glGenTextures(2, &texture[0]);                  // tworzy obiekt tekstury			
 
 		// ³aduje pierwszy obraz tekstury:
-		//bitmapData = LoadBitmapFile("Bitmapy\\checker.bmp", &bitmapInfoHeader);
+		bitmapData = LoadBitmapFile((char*)"dust.png", &bitmapInfoHeader);
 
 		glBindTexture(GL_TEXTURE_2D, texture[0]);       // aktywuje obiekt tekstury
 
@@ -960,6 +960,7 @@ LRESULT CALLBACK WndProc(HWND    hWnd,
 
 		if (bitmapData)
 			free(bitmapData);
+		dust = LoadTexture("dust.png", 1);
 
 		// ustalenie sposobu mieszania tekstury z t³em
 		glTexEnvi(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_MODULATE);
