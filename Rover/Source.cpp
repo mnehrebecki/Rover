@@ -37,7 +37,7 @@
 #include "Lamp.h"
 #include "Roller.h"
 #include "Rover.h"
-
+#include "Camera.h"
 #include "object.h"
 #define STB_IMAGE_IMPLEMENTATION
 #include "stb_image.h"
@@ -165,7 +165,7 @@ void calcNormal(float v[3][3], float out[3])
 // Change viewing volume and viewport.  Called when window is resized
 void ChangeSize(GLsizei w, GLsizei h)
 {
-	GLfloat nRange = 800.0f;
+	GLfloat nRange = 7000.0f;
 	GLfloat fAspect;
 	// Prevent a divide by zero
 	if (h == 0)
@@ -183,14 +183,14 @@ void ChangeSize(GLsizei w, GLsizei h)
 	glLoadIdentity();
 
 	// Establish clipping volume (left, right, bottom, top, near, far)
-	if (w <= h)
+	/*if (w <= h)
 		glOrtho(-nRange, nRange, -nRange * h / w, nRange*h / w, -nRange, nRange);
 	else
 		glOrtho(-nRange * w / h, nRange*w / h, -nRange, nRange, -nRange, nRange);
-
+*/
 	// Establish perspective: 
 	
-	//gluPerspective(90.0f,fAspect,10.0,nRange);
+	gluPerspective(90.0f,fAspect,10.0,nRange);
 	
 
 	glMatrixMode(GL_MODELVIEW);
@@ -313,6 +313,7 @@ unsigned char *LoadBitmapFile(char *filename, BITMAPINFOHEADER *bitmapInfoHeader
 	return bitmapImage;
 }
 
+auto camera = new Camera{};
 
 Rover rover;
 GLfloat rot[] = { 0,1,0,0 };
@@ -337,7 +338,7 @@ void RenderScene(void)
 
 	// Clear the window with current clearing color
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-	glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
+	//glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
 	// Save the matrix state and do the rotations
 	glPushMatrix();
 	glRotatef(xRot, 1.0f, 0.0f, 0.0f);
@@ -603,38 +604,38 @@ LRESULT CALLBACK WndProc(HWND    hWnd,
 		// ³aduje pierwszy obraz tekstury:
 		//bitmapData = LoadBitmapFile((char*)"dust.bmp", &bitmapInfoHeader);
 
-		glBindTexture(GL_TEXTURE_2D, texture[0]);       // aktywuje obiekt tekstury
+		//glBindTexture(GL_TEXTURE_2D, texture[0]);       // aktywuje obiekt tekstury
 
-		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
-		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+		//glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+		//glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
 
-		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP);
-		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP);
+		//glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP);
+		//glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP);
 
-		// tworzy obraz tekstury
-		glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, bitmapInfoHeader.biWidth,
-			bitmapInfoHeader.biHeight, 0, GL_RGB, GL_UNSIGNED_BYTE, bitmapData);
+		//// tworzy obraz tekstury
+		//glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, bitmapInfoHeader.biWidth,
+		//	bitmapInfoHeader.biHeight, 0, GL_RGB, GL_UNSIGNED_BYTE, bitmapData);
 
-		if (bitmapData)
-			free(bitmapData);
+		//if (bitmapData)
+		//	free(bitmapData);
 
-		// ³aduje drugi obraz tekstury:
-		//bitmapData = LoadBitmapFile("Bitmapy\\crate.bmp", &bitmapInfoHeader);
-		glBindTexture(GL_TEXTURE_2D, texture[1]);       // aktywuje obiekt tekstury
+		//// ³aduje drugi obraz tekstury:
+		////bitmapData = LoadBitmapFile("Bitmapy\\crate.bmp", &bitmapInfoHeader);
+		//glBindTexture(GL_TEXTURE_2D, texture[1]);       // aktywuje obiekt tekstury
 
-		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
-		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+		//glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+		//glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
 
-		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP);
-		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP);
+		//glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP);
+		//glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP);
 
-		// tworzy obraz tekstury
-		glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, bitmapInfoHeader.biWidth,
-			bitmapInfoHeader.biHeight, 0, GL_RGB, GL_UNSIGNED_BYTE, bitmapData);
+		//// tworzy obraz tekstury
+		//glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, bitmapInfoHeader.biWidth,
+		//	bitmapInfoHeader.biHeight, 0, GL_RGB, GL_UNSIGNED_BYTE, bitmapData);
 
-		if (bitmapData)
-			free(bitmapData);
-		
+		//if (bitmapData)
+		//	free(bitmapData);
+		//
 
 		// ustalenie sposobu mieszania tekstury z t³em
 		glTexEnvi(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_MODULATE);
@@ -724,7 +725,8 @@ LRESULT CALLBACK WndProc(HWND    hWnd,
 		// Key press, check for arrow keys to do cube rotation.
 	case WM_KEYDOWN:
 	{
-		if (wParam == VK_UP)
+		camera->update(wParam);
+		/*if (wParam == VK_UP)
 			xRot -= 5.0f;
 
 		if (wParam == VK_DOWN)
@@ -740,7 +742,7 @@ LRESULT CALLBACK WndProc(HWND    hWnd,
 			zRot -= 5.0f;
 
 		if (wParam == 'E')
-			zRot += 5.0f;
+			zRot += 5.0f;*/
 
 		xRot = (const int)xRot % 360;
 		yRot = (const int)yRot % 360;

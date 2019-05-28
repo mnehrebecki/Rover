@@ -144,6 +144,7 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="Box.cpp" />
+    <ClCompile Include="Camera.cpp" />
     <ClCompile Include="Lamp.cpp" />
     <ClCompile Include="Roller.cpp" />
     <ClCompile Include="Rover.cpp" />
@@ -153,6 +154,7 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Box.h" />
+    <ClInclude Include="Camera.h" />
     <ClInclude Include="Lamp.h" />
     <ClInclude Include="OBJ_Loader.h" />
     <ClInclude Include="Roller.h" />
