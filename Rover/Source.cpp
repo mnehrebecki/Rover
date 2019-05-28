@@ -337,12 +337,14 @@ void RenderScene(void)
 
 	// Clear the window with current clearing color
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-
+	glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
 	// Save the matrix state and do the rotations
 	glPushMatrix();
 	glRotatef(xRot, 1.0f, 0.0f, 0.0f);
 	glRotatef(yRot, 0.0f, 1.0f, 0.0f);
 	glRotatef(zRot, 0.0f, 0.0f, 1.0f);
+
+
 
 	/////////////////////////////////////////////////////////////////
 	// MIEJSCE NA KOD OPENGL DO TWORZENIA WLASNYCH SCEN:		   //
