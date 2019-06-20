@@ -49,12 +49,12 @@ void Camera::update(WPARAM wParam)
 		this->lookAt[2] = sin(pitch);
 		break;
 
-	case 'A':
+	case 'D':
 		this->position[0] += stepMovement * sin(yaw - M_PI / 2);
 		this->position[1] += stepMovement * cos(yaw - M_PI / 2);
 		break;
 
-	case 'D':
+	case 'A':
 		this->position[0] += stepMovement * sin(yaw + M_PI / 2);
 		this->position[1] += stepMovement * cos(yaw + M_PI / 2);
 		break;

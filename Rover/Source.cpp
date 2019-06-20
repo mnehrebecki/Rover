@@ -314,7 +314,13 @@ unsigned char *LoadBitmapFile(char *filename, BITMAPINFOHEADER *bitmapInfoHeader
 }
 
 auto camera = new Camera{};
-
+bool keys[256];
+static GLdouble startX = 0;
+static GLdouble startZ = 0;
+static GLdouble doZ = 0;
+static GLdouble chX = 0;
+static GLdouble chZ = 0;
+static GLdouble speed = 0;
 Rover rover;
 GLfloat rot[] = { 0,1,0,0 };
 GLfloat rot2[] = { 0,0,0,0 };
@@ -351,10 +357,8 @@ void RenderScene(void)
 	// MIEJSCE NA KOD OPENGL DO TWORZENIA WLASNYCH SCEN:		   //
 	/////////////////////////////////////////////////////////////////
 	
-	//Sposób na odróŸnienie "przedniej" i "tylniej" œciany wielok¹ta:
-	//glPolygonMode(GL_BACK, GL_LINE);
+
 	
-	//teren();
 	glPushMatrix();
 	glEnable(GL_TEXTURE_2D);
 	glBindTexture(GL_TEXTURE_2D, textures[0]);
@@ -380,14 +384,52 @@ void RenderScene(void)
 	glPopMatrix();
 
 	
+	glPushMatrix();
+	glTranslatef(chX, 0.0, chZ); // 3. Translate to the object's position.
+	glRotatef(startX, 0.0, 0.0, 0.0); // 2. Rotate the object.
+	glRotatef(startZ + doZ, 0.0, 1.0, 0.0); // 2. Rotate the object.
 	rover.draw();
+	glPopMatrix();
 	
+
 	
 	glPopMatrix();
 	glMatrixMode(GL_MODELVIEW);
 
 	// Flush drawing commands
 	glFlush();
+
+	if (keys['J'] ) {
+		if (keys['J'] && keys['K'])
+			doZ -= 2;
+		else doZ += 2;
+	}
+
+	if (keys['L']) {
+		if (keys['L'] && keys['K'])
+			doZ += 2;
+		else doZ -= 2;
+	}
+
+	if ((keys['I'] && keys['K']) == 0)
+		speed = 0;
+	if (keys['I']) {
+		if (speed < 30)
+			speed += 8;
+	}
+	else if (speed > 0) speed--;
+	
+
+	if (keys['K']) {
+		speed = 0;
+			speed -= 5;
+	}
+	
+
+	GLdouble addX = sin((startZ + doZ + 90)*GL_PI / 180) * speed;
+	GLdouble addZ = cos((startZ + doZ + 90)*GL_PI / 180) * speed;
+	chX += addX;
+	chZ += addZ;
 }
 
 
@@ -722,27 +764,49 @@ LRESULT CALLBACK WndProc(HWND    hWnd,
 		}
 		break;
 
+	case WM_KEYUP:
+	{
+		if (wParam == 'J') {
+			keys['J'] = false;
+		}
+
+		if (wParam == 'L') {
+			keys['L'] = false;
+		}
+
+		if (wParam == 'K') {
+			keys['K'] = false;
+		}
+
+		if (wParam == 'I') {
+			keys['I'] = false;
+		}
+		if (wParam == 'B') {
+			keys['B'] = false;
+		}
+	}
+	break;
 		// Key press, check for arrow keys to do cube rotation.
 	case WM_KEYDOWN:
 	{
 		camera->update(wParam);
-		/*if (wParam == VK_UP)
-			xRot -= 5.0f;
 
-		if (wParam == VK_DOWN)
-			xRot += 5.0f;
 
-		if (wParam == VK_LEFT)
-			yRot -= 5.0f;
+		if (wParam == 'J') {
+			keys['J'] = true;
+		}
 
-		if (wParam == VK_RIGHT)
-			yRot += 5.0f;
+		if (wParam == 'L') {
+			keys['L'] = true;
+		}
 
-		if (wParam == 'Q')
-			zRot -= 5.0f;
+		if (wParam == 'K') {
+			keys['K'] = true;
+		}
 
-		if (wParam == 'E')
-			zRot += 5.0f;*/
+		if (wParam == 'I') {
+			keys['I'] = true;
+		}
 
 		xRot = (const int)xRot % 360;
 		yRot = (const int)yRot % 360;
