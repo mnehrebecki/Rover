@@ -313,7 +313,7 @@ unsigned char *LoadBitmapFile(char *filename, BITMAPINFOHEADER *bitmapInfoHeader
 	return bitmapImage;
 }
 
-auto camera = new Camera{};
+
 bool keys[256];
 static GLdouble startX = 0;
 static GLdouble startZ = 0;
@@ -326,8 +326,8 @@ GLfloat rot[] = { 0,1,0,0 };
 GLfloat rot2[] = { 0,0,0,0 };
 
 GLfloat pos1[3] = { 0,0,-5 };
-GLfloat pos2[3] = { 80,400, 100};
-GLfloat pos3[3] = { -320,-800, 40 };
+GLfloat pos2[3] = { 320,300, -10 };
+GLfloat pos3[3] = { -320,-800, -10 };
 
 GLfloat color1[3] = { 0.9,0.49,0.07 };
 GLfloat color2[3] = { 0.8,0.59,0.07 };
@@ -335,8 +335,9 @@ GLfloat color3[3] = { 0.8,0.9,0.7 };
 
 
 auto terrain = new object{ &textures[0], "mars.obj", color1, pos1, rot, 20 };
-auto rock = new object{ &textures[1], "rock.obj", color2,pos2,rot2,10 };
-auto rock2 = new object{ &textures[2], "rock2.obj", color3, pos3,rot2,1 };
+auto rock = new object{ &textures[1], "cactus.obj", color2,pos2,rot2,10 };
+auto rock2 = new object{ &textures[1], "cactus.obj", color3, pos3,rot2,10 };
+auto camera = new Camera{};
 
 void RenderScene(void)
 {
@@ -386,20 +387,21 @@ void RenderScene(void)
 	
 	glPushMatrix();
 	glTranslatef(chX, 0.0, chZ); // 3. Translate to the object's position.
-	glRotatef(startX, 0.0, 0.0, 0.0); // 2. Rotate the object.
+	glRotatef(startX, 1.0, 0.0, 0.0); // 2. Rotate the object.
 	glRotatef(startZ + doZ, 0.0, 1.0, 0.0); // 2. Rotate the object.
 	rover.draw();
 	glPopMatrix();
 	
 
-	
 	glPopMatrix();
 	glMatrixMode(GL_MODELVIEW);
 
 	// Flush drawing commands
 	glFlush();
 
-	if (keys['J'] ) {
+	
+
+	if (keys['J']) {
 		if (keys['J'] && keys['K'])
 			doZ -= 2;
 		else doZ += 2;
@@ -411,25 +413,44 @@ void RenderScene(void)
 		else doZ -= 2;
 	}
 
+	//odleglosci od obiektow
+	GLdouble odl1 = sqrt(pow(chX - pos2[0], 2) + pow(chZ - pos2[1], 2));
+	GLdouble odl2 = sqrt(pow(chX - pos3[0], 2) + pow(chZ - pos3[1], 2));
+
+	GLdouble collision = 90;
+
 	if ((keys['I'] && keys['K']) == 0)
 		speed = 0;
 	if (keys['I']) {
 		if (speed < 30)
 			speed += 8;
 	}
-	else if (speed > 0) speed--;
-	
+
 
 	if (keys['K']) {
 		speed = 0;
-			speed -= 5;
-	}
+		speed -= 5;
+	} 	 	
 	
-
+	
 	GLdouble addX = sin((startZ + doZ + 90)*GL_PI / 180) * speed;
 	GLdouble addZ = cos((startZ + doZ + 90)*GL_PI / 180) * speed;
-	chX += addX;
-	chZ += addZ;
+
+
+
+	if (odl1 >= collision && odl2 >= collision) {
+		chX += addX;
+		chZ += addZ;
+	}
+	else {
+		speed = 5;
+		GLdouble odl11 = sqrt(pow(chX + addX - pos2[0], 2) + pow(chZ + addZ - pos2[1], 2));
+		GLdouble odl21 = sqrt(pow(chX + addX - pos3[0], 2) + pow(chZ + addZ - pos3[1], 2));
+		if (odl11 > odl1 && odl21 > odl2) {
+			chX += addX;
+			chZ += addZ;
+		}
+	}
 }
 
 
@@ -641,8 +662,8 @@ LRESULT CALLBACK WndProc(HWND    hWnd,
 
 
 		textures[0] = LoadTexture("dust.bmp", 1);
-		textures[1] = LoadTexture("rock.png", 1);
-		textures[2] = LoadTexture("rock2.png", 1);
+		textures[1] = LoadTexture("cactus.png", 1);
+		//textures[2] = LoadTexture("cactus.png", 1);
 		// ³aduje pierwszy obraz tekstury:
 		//bitmapData = LoadBitmapFile((char*)"dust.bmp", &bitmapInfoHeader);
 
