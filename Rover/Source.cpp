@@ -41,6 +41,8 @@
 #include "object.h"
 #define STB_IMAGE_IMPLEMENTATION
 #include "stb_image.h"
+#include "AntTweakBar.h"
+#pragma comment(lib, "lib/AntTweakBar.lib")
 
 
 #define glRGB(x, y, z)	glColor3ub((GLubyte)x, (GLubyte)y, (GLubyte)z)
@@ -317,9 +319,9 @@ unsigned char *LoadBitmapFile(char *filename, BITMAPINFOHEADER *bitmapInfoHeader
 bool keys[256];
 static GLdouble startX = 0;
 static GLdouble startZ = 0;
-static GLdouble doZ = 0;
-static GLdouble chX = 0;
-static GLdouble chZ = 0;
+static GLdouble angle = 0;
+static GLdouble X = 0;
+static GLdouble Z = 0;
 static GLdouble speed = 0;
 Rover rover;
 GLfloat rot[] = { 0,1,0,0 };
@@ -334,7 +336,7 @@ GLfloat color2[3] = { 0.8,0.59,0.07 };
 GLfloat color3[3] = { 0.8,0.9,0.7 };
 
 
-auto terrain = new object{ &textures[0], "mars.obj", color1, pos1, rot, 20 };
+auto terrain = new object{ &textures[0], "mars2.obj", color1, pos1, rot, 120 };
 auto rock = new object{ &textures[1], "cactus.obj", color2,pos2,rot2,10 };
 auto rock2 = new object{ &textures[1], "cactus.obj", color3, pos3,rot2,10 };
 auto camera = new Camera{};
@@ -386,9 +388,9 @@ void RenderScene(void)
 
 	
 	glPushMatrix();
-	glTranslatef(chX, 0.0, chZ); // 3. Translate to the object's position.
-	glRotatef(startX, 1.0, 0.0, 0.0); // 2. Rotate the object.
-	glRotatef(startZ + doZ, 0.0, 1.0, 0.0); // 2. Rotate the object.
+	glTranslatef(X, 0.0, Z); 
+	glRotatef(startX, 1.0, 0.0, 0.0);
+	glRotatef(startZ + angle, 0.0, 1.0, 0.0); 
 	rover.draw();
 	glPopMatrix();
 	
@@ -399,58 +401,52 @@ void RenderScene(void)
 	// Flush drawing commands
 	glFlush();
 
-	
-
 	if (keys['J']) {
 		if (keys['J'] && keys['K'])
-			doZ -= 2;
-		else doZ += 2;
+			angle -= 2;
+		else angle += 2;
 	}
 
 	if (keys['L']) {
 		if (keys['L'] && keys['K'])
-			doZ += 2;
-		else doZ -= 2;
+			angle += 2;
+		else angle -= 2;
 	}
-
-	//odleglosci od obiektow
-	GLdouble odl1 = sqrt(pow(chX - pos2[0], 2) + pow(chZ - pos2[1], 2));
-	GLdouble odl2 = sqrt(pow(chX - pos3[0], 2) + pow(chZ - pos3[1], 2));
-
-	GLdouble collision = 90;
 
 	if ((keys['I'] && keys['K']) == 0)
 		speed = 0;
 	if (keys['I']) {
-		if (speed < 30)
-			speed += 8;
+			speed = 10;
 	}
-
 
 	if (keys['K']) {
-		speed = 0;
-		speed -= 5;
+		
+		speed = -10;
 	} 	 	
-	
-	
-	GLdouble addX = sin((startZ + doZ + 90)*GL_PI / 180) * speed;
-	GLdouble addZ = cos((startZ + doZ + 90)*GL_PI / 180) * speed;
 
+	//odleglosci od obiektow
+	GLdouble odl1 = sqrt(pow(X - pos2[0], 2) + pow(Z - pos2[1], 2));
+	GLdouble odl2 = sqrt(pow(X - pos3[0], 2) + pow(Z - pos3[1], 2));
 
+	GLdouble collision = 90;
+	
+	GLdouble addX = sin((startZ + angle + 90)*GL_PI / 180) * speed;
+	GLdouble addZ = cos((startZ + angle + 90)*GL_PI / 180) * speed;
 
 	if (odl1 >= collision && odl2 >= collision) {
-		chX += addX;
-		chZ += addZ;
+		X += addX;
+		Z += addZ;
 	}
 	else {
-		speed = 5;
-		GLdouble odl11 = sqrt(pow(chX + addX - pos2[0], 2) + pow(chZ + addZ - pos2[1], 2));
-		GLdouble odl21 = sqrt(pow(chX + addX - pos3[0], 2) + pow(chZ + addZ - pos3[1], 2));
-		if (odl11 > odl1 && odl21 > odl2) {
-			chX += addX;
-			chZ += addZ;
+		GLdouble odl11 = sqrt(pow(X + addX - pos2[0], 2) + pow(Z + addZ - pos2[1], 2));
+		GLdouble odl21 = sqrt(pow(X + addX - pos3[0], 2) + pow(Z + addZ - pos3[1], 2));
+		if (odl11 >= odl1) {
+			X += addX;
+			Z += addZ;
 		}
 	}
+
+	TwDraw();
 }
 
 
@@ -611,6 +607,14 @@ int APIENTRY WinMain(HINSTANCE       hInst,
 	// If window was not created, quit
 	if (hWnd == NULL)
 		return FALSE;
+
+	TwInit(TW_OPENGL, NULL);
+	TwWindowSize(200, 200);
+	TwBar *ATB;
+	ATB = TwNewBar("Wlasciwosci");
+	TwAddVarRW(ATB, "X: ", TW_TYPE_DOUBLE, &X, "");
+	TwAddVarRW(ATB, "Y: ", TW_TYPE_DOUBLE, &Z, "");
+	TwAddVarRW(ATB, "Speed: ", TW_TYPE_DOUBLE, &speed, "");
 
 
 	// Display the window
