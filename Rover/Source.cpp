@@ -41,6 +41,8 @@
 #include "object.h"
 #define STB_IMAGE_IMPLEMENTATION
 #include "stb_image.h"
+#include "AntTweakBar.h"
+#pragma comment(lib, "lib/AntTweakBar.lib")
 
 
 #define glRGB(x, y, z)	glColor3ub((GLubyte)x, (GLubyte)y, (GLubyte)z)
@@ -313,24 +315,31 @@ unsigned char *LoadBitmapFile(char *filename, BITMAPINFOHEADER *bitmapInfoHeader
 	return bitmapImage;
 }
 
-auto camera = new Camera{};
 
+bool keys[256];
+static GLdouble startX = 0;
+static GLdouble startZ = 0;
+static GLdouble angle = 0;
+static GLdouble X = 0;
+static GLdouble Z = 0;
+static GLdouble speed = 0;
 Rover rover;
 GLfloat rot[] = { 0,1,0,0 };
 GLfloat rot2[] = { 0,0,0,0 };
 
 GLfloat pos1[3] = { 0,0,-5 };
-GLfloat pos2[3] = { 80,400, 100};
-GLfloat pos3[3] = { -320,-800, 40 };
+GLfloat pos2[3] = { 320,300, -10 };
+GLfloat pos3[3] = { -320,-800, -10 };
 
 GLfloat color1[3] = { 0.9,0.49,0.07 };
 GLfloat color2[3] = { 0.8,0.59,0.07 };
 GLfloat color3[3] = { 0.8,0.9,0.7 };
 
 
-auto terrain = new object{ &textures[0], "mars.obj", color1, pos1, rot, 20 };
-auto rock = new object{ &textures[1], "rock.obj", color2,pos2,rot2,10 };
-auto rock2 = new object{ &textures[2], "rock2.obj", color3, pos3,rot2,1 };
+auto terrain = new object{ &textures[0], "mars2.obj", color1, pos1, rot, 120 };
+auto rock = new object{ &textures[1], "cactus.obj", color2,pos2,rot2,10 };
+auto rock2 = new object{ &textures[1], "cactus.obj", color3, pos3,rot2,10 };
+auto camera = new Camera{};
 
 void RenderScene(void)
 {
@@ -351,10 +360,8 @@ void RenderScene(void)
 	// MIEJSCE NA KOD OPENGL DO TWORZENIA WLASNYCH SCEN:		   //
 	/////////////////////////////////////////////////////////////////
 	
-	//Sposób na odróŸnienie "przedniej" i "tylniej" œciany wielok¹ta:
-	//glPolygonMode(GL_BACK, GL_LINE);
+
 	
-	//teren();
 	glPushMatrix();
 	glEnable(GL_TEXTURE_2D);
 	glBindTexture(GL_TEXTURE_2D, textures[0]);
@@ -380,14 +387,66 @@ void RenderScene(void)
 	glPopMatrix();
 
 	
+	glPushMatrix();
+	glTranslatef(X, 0.0, Z); 
+	glRotatef(startX, 1.0, 0.0, 0.0);
+	glRotatef(startZ + angle, 0.0, 1.0, 0.0); 
 	rover.draw();
+	glPopMatrix();
 	
-	
+
 	glPopMatrix();
 	glMatrixMode(GL_MODELVIEW);
 
 	// Flush drawing commands
 	glFlush();
+
+	if (keys['J']) {
+		if (keys['J'] && keys['K'])
+			angle -= 2;
+		else angle += 2;
+	}
+
+	if (keys['L']) {
+		if (keys['L'] && keys['K'])
+			angle += 2;
+		else angle -= 2;
+	}
+
+	if ((keys['I'] && keys['K']) == 0)
+		speed = 0;
+	if (keys['I']) {
+			speed = 10;
+	}
+
+	if (keys['K']) {
+		
+		speed = -10;
+	} 	 	
+
+	//odleglosci od obiektow
+	GLdouble odl1 = sqrt(pow(X - pos2[0], 2) + pow(Z - pos2[1], 2));
+	GLdouble odl2 = sqrt(pow(X - pos3[0], 2) + pow(Z - pos3[1], 2));
+
+	GLdouble collision = 90;
+	
+	GLdouble addX = sin((startZ + angle + 90)*GL_PI / 180) * speed;
+	GLdouble addZ = cos((startZ + angle + 90)*GL_PI / 180) * speed;
+
+	if (odl1 >= collision && odl2 >= collision) {
+		X += addX;
+		Z += addZ;
+	}
+	else {
+		GLdouble odl11 = sqrt(pow(X + addX - pos2[0], 2) + pow(Z + addZ - pos2[1], 2));
+		GLdouble odl21 = sqrt(pow(X + addX - pos3[0], 2) + pow(Z + addZ - pos3[1], 2));
+		if (odl11 >= odl1) {
+			X += addX;
+			Z += addZ;
+		}
+	}
+
+	TwDraw();
 }
 
 
@@ -549,6 +608,14 @@ int APIENTRY WinMain(HINSTANCE       hInst,
 	if (hWnd == NULL)
 		return FALSE;
 
+	TwInit(TW_OPENGL, NULL);
+	TwWindowSize(200, 200);
+	TwBar *ATB;
+	ATB = TwNewBar("Wlasciwosci");
+	TwAddVarRW(ATB, "X: ", TW_TYPE_DOUBLE, &X, "");
+	TwAddVarRW(ATB, "Y: ", TW_TYPE_DOUBLE, &Z, "");
+	TwAddVarRW(ATB, "Speed: ", TW_TYPE_DOUBLE, &speed, "");
+
 
 	// Display the window
 	ShowWindow(hWnd, SW_SHOW);
@@ -599,8 +666,8 @@ LRESULT CALLBACK WndProc(HWND    hWnd,
 
 
 		textures[0] = LoadTexture("dust.bmp", 1);
-		textures[1] = LoadTexture("rock.png", 1);
-		textures[2] = LoadTexture("rock2.png", 1);
+		textures[1] = LoadTexture("cactus.png", 1);
+		//textures[2] = LoadTexture("cactus.png", 1);
 		// ³aduje pierwszy obraz tekstury:
 		//bitmapData = LoadBitmapFile((char*)"dust.bmp", &bitmapInfoHeader);
 
@@ -722,27 +789,49 @@ LRESULT CALLBACK WndProc(HWND    hWnd,
 		}
 		break;
 
+	case WM_KEYUP:
+	{
+		if (wParam == 'J') {
+			keys['J'] = false;
+		}
+
+		if (wParam == 'L') {
+			keys['L'] = false;
+		}
+
+		if (wParam == 'K') {
+			keys['K'] = false;
+		}
+
+		if (wParam == 'I') {
+			keys['I'] = false;
+		}
+		if (wParam == 'B') {
+			keys['B'] = false;
+		}
+	}
+	break;
 		// Key press, check for arrow keys to do cube rotation.
 	case WM_KEYDOWN:
 	{
 		camera->update(wParam);
-		/*if (wParam == VK_UP)
-			xRot -= 5.0f;
 
-		if (wParam == VK_DOWN)
-			xRot += 5.0f;
 
-		if (wParam == VK_LEFT)
-			yRot -= 5.0f;
+		if (wParam == 'J') {
+			keys['J'] = true;
+		}
 
-		if (wParam == VK_RIGHT)
-			yRot += 5.0f;
+		if (wParam == 'L') {
+			keys['L'] = true;
+		}
 
-		if (wParam == 'Q')
-			zRot -= 5.0f;
+		if (wParam == 'K') {
+			keys['K'] = true;
+		}
 
-		if (wParam == 'E')
-			zRot += 5.0f;*/
+		if (wParam == 'I') {
+			keys['I'] = true;
+		}
 
 		xRot = (const int)xRot % 360;
 		yRot = (const int)yRot % 360;

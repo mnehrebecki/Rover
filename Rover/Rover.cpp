@@ -14,7 +14,7 @@ Rover::~Rover()
 void Rover::draw()
 {
 	glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
-	GLfloat centerRR[3] = { -50.0f,15.0f,40.0f };		//wsp œrodków kó³
+	GLfloat centerRR[3] = { -50.0f,15.0f,40.0f };				//wsp œrodków kó³
 	GLfloat centerFR[3] = { 50.0f,15.0f,40.0f };
 	GLfloat centerRL[3] = { -50.0f,15.0f,-40.0f };
 	GLfloat centerFL[3] = { 50.0f,15.0f, -40.0f };
@@ -32,7 +32,6 @@ void Rover::draw()
 
 	GLfloat beginningRRSuspension[3] = { -55.0f,10.0f, 35.0f };
 	Box rrSuspension(10, 30, 5, beginningRRSuspension);
-
 
 	GLfloat beginningFAxis[3] = { 45.0f,35.0f, -20.0f };
 	Box fAxis(10, 5, 55, beginningFAxis);						//oœ przednia
@@ -70,10 +69,8 @@ void Rover::draw()
 	GLfloat centerLens[3] = { -29.0f,111.0f, 7.5f };
 	Lamp lens(2, 2, centerLens);									//obiektyw kamery
 
-
 	GLfloat beginningAntenna[3] = { -50.0f,50.0f, 25.0f };
 	Roller antenna(0.35f, 80, beginningAntenna);
-
 
 	GLfloat centerArmStick[3] = { 50.0f,50.0f, 7.5f };
 	Roller armStick(3, 30, centerArmStick);								//dr¹¿ek ramienia
@@ -91,18 +88,18 @@ void Rover::draw()
 	Lamp arm2(3, 40, centerArm2);
 
 	GLfloat beginningFRArmHandler[3] = { 84.0f, 82.0f, 10.5f };
-	Box frArmHandler(10, 6, 2, beginningFRArmHandler);								//mocowanie ramienia
+	Box frArmHandler(10, 6, 2, beginningFRArmHandler);						//mocowanie ramienia
 
 	GLfloat beginningFLArmHandler[3] = { 84.0f, 82.0f, 2.5f };
 	Box flArmHandler(10, 6, 2, beginningFLArmHandler);
 
 	GLfloat beginningRFinger[3] = { 128.0f, 82.0f, 10.5f };
-	Box rFinger(10, 6, 2, beginningRFinger);						//mocowanie ramienia
+	Box rFinger(10, 6, 2, beginningRFinger);								//mocowanie ramienia
 
 	GLfloat beginningLFinger[3] = { 128.0f, 82.0f, 2.5f };
 	Box lFinger(10, 6, 2, beginningLFinger);
 
-	wheelRR.draw();				//ko³a
+	wheelRR.draw();				
 	wheelFR.draw();
 	wheelRL.draw();
 	wheelFL.draw();
